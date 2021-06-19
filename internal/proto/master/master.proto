@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package master;
+
+option go_package = "./master";
+
+service Master {
+    rpc JoinExistingCluster(Node) returns (Cluster);
+    rpc JoinMaster(Node) returns (Cluster);
+    rpc UpdateMaster(Node) returns (Response);
+    rpc LeaveCluster(Node) returns (Response);
+    rpc GetMaster(Cluster) returns (Node);
+    rpc Init(Cluster) returns (Response);
+}
+
+message Cluster {
+    string id = 1;
+    string master_grpc_address = 2;
+    string master_raft_address = 3;
+}
+
+message Response {
+    string data = 1;
+}
+
+message Node {
+    string id = 1;
+    string grpc_address = 2;
+    string raft_address = 3;
+    string cluster_id = 4;
+}
