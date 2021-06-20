@@ -1,4 +1,4 @@
-package grpc-server
+package grpcserver
 
 import (
 	"sync"
@@ -15,4 +15,9 @@ func New() *Server{
 	return &Server {
 		srv: grpc.NewServer(),
 	}
+}
+
+// Join provides joining of the node
+func (s *Server) Join() error {
+	return nil
 }

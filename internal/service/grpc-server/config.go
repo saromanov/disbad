@@ -1,4 +1,4 @@
-package grpc-server
+package grpcserver
 
 type Config struct {
 	Address string

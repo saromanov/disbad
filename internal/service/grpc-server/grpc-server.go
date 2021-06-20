@@ -1,13 +1,13 @@
-package grpc-server
+package grpcserver
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"time"
+	"net"
 
 	log "github.com/sirupsen/logrus"
+
+	"github.com/saromanov/disbad/internal/proto/master"
+	"github.com/saromanov/disbad/internal/service"
 )
 
 type server struct {
@@ -31,7 +31,7 @@ func (s *rest) Run(ctx context.Context, ready func()) error {
 	}
 
 	clusterAdminGRPCServer = New()
-	RavelClusterAdminPB.RegisterMaster(clusterAdminGRPCServer.Server, clusterAdminGRPCServer)
+	master.RegisterMasterServer(clusterAdminGRPCServer.Server, clusterAdminGRPCServer)
 	if err := clusterAdminGRPCServer.Server.Serve(listener); err != nil {
 		return err
 	}
