@@ -21,6 +21,7 @@ func New(cfg Config) service.Service {
 	}
 }
 
+// Run provides starting of the grpc server
 func (s *rest) Run(ctx context.Context, ready func()) error {
 	logger := log.WithContext(ctx)
 	listener, err := net.Listen("tcp", s.cfg.Address)
@@ -29,8 +30,8 @@ func (s *rest) Run(ctx context.Context, ready func()) error {
 		return err
 	}
 
-	clusterAdminGRPCServer = NewClusterAdminGRPCServer()
-	RavelClusterAdminPB.RegisterRavelClusterAdminServer(clusterAdminGRPCServer.Server, clusterAdminGRPCServer)
+	clusterAdminGRPCServer = New()
+	RavelClusterAdminPB.RegisterMaster(clusterAdminGRPCServer.Server, clusterAdminGRPCServer)
 	if err := clusterAdminGRPCServer.Server.Serve(listener); err != nil {
 		return err
 	}
