@@ -21,3 +21,7 @@ func New() *Server{
 func (s *Server) Join() error {
 	return nil
 }
+
+func (s *Server) Leave() error {
+	return nil
+}

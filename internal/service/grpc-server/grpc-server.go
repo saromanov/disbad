@@ -16,13 +16,13 @@ type server struct {
 
 // New provides initialization of the grpc-server
 func New(cfg Config) service.Service {
-	return &rest{
+	return &server{
 		cfg: cfg,
 	}
 }
 
 // Run provides starting of the grpc server
-func (s *rest) Run(ctx context.Context, ready func()) error {
+func (s *server) Run(ctx context.Context, ready func()) error {
 	logger := log.WithContext(ctx)
 	listener, err := net.Listen("tcp", s.cfg.Address)
 	if err != nil {
@@ -38,6 +38,6 @@ func (s *rest) Run(ctx context.Context, ready func()) error {
 	return nil
 }
 
-func (s *rest) Shutdown(ctx context.Context) error {
+func (s *server) Shutdown(ctx context.Context) error {
 	return nil
 }
