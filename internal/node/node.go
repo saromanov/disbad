@@ -19,27 +19,14 @@ func (n *Node) Get(key []byte) ([]byte, error) {
 }
 
 func (n *Node) Set(key []byte, value []byte) error {
-	if n.Raft.State() != raft.Leader {
-		return raft.ErrNotLeader
-	}
-
-	var data fsm.LogData
-
-	data.Operation = "set"
-	data.Key = key
-	data.Value = value
-
-	dataBuffer, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	f := n.Raft.Apply(dataBuffer, 5*time.Second)
-
-	return f.Error()
+	return n.handle("set")
 }
 
 func (n *Node) Delete(key []byte) error {
+	return n.handle("delete")
+}
+
+func (n *Node) handle(operation string) error {
 	if n.Raft.State() != raft.Leader {
 		return raft.ErrNotLeader
 	}
@@ -52,7 +39,6 @@ func (n *Node) Delete(key []byte) error {
 
 	dataBuffer, err := json.Marshal(data)
 	if err != nil {
-		log.Fatal("RavelNode: Unable to marhsal key value")
 		return err
 	}
 
