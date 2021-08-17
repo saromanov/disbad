@@ -14,8 +14,8 @@ type Data struct {
 	Value     []byte `json:"Value"`
 }
 
-// NewFSM creates an instance of RavelFSM
-func NewFSM(path string) (*FSM, error) {
+// New creates an instance of FSM
+func New(path string) (*FSM, error) {
 	var r storage.Storage
 	err := r.Init(path)
 	if err != nil {
