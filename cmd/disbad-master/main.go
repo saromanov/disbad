@@ -50,7 +50,10 @@ func main(){
 	r := rest.New(cfg.Rest,st)
 
 	s := service.Runner{}
-	if err := s.SetupService(ctx, r, "grpc-server", g); err != nil {
+	if err := s.SetupService(ctx, st, "grpc-server", g); err != nil {
+		logger.WithError(err).Fatal("unable to setup service ")
+	}
+	if err := s.SetupService(ctx, r, "rest-server", g); err != nil {
 		logger.WithError(err).Fatal("unable to setup service ")
 	}
 	logger.Info("Running of the service...")
