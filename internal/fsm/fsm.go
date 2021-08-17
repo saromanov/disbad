@@ -1,17 +1,16 @@
 package fsm
 
 import (
+	"encoding/json"
+
 	"github.com/saromanov/disbad/internal/storage"
+	"github.com/saromanov/disbad/internal/models"
+
+	"github.com/hashicorp/raft"
 )
 
 type FSM struct {
 	db storage.Storage
-}
-
-type Data struct {
-	Operation string `json:"Operation"`
-	Key       []byte `json:"Key"`
-	Value     []byte `json:"Value"`
 }
 
 // New creates an instance of FSM
@@ -23,6 +22,27 @@ func New(path string) (*FSM, error) {
 	}
 
 	return &FSM{
-		Db: &r,
+		db: r,
 	}, nil
+}
+
+// Get provides getting of the state from the storage
+func (f *FSM) Get(key []byte) ([]byte, error) {
+	data, err := f.db.Get(key)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+// Write provides writing state to the storage
+func (f *FSM) Write(r *raft.Log) error {
+	var l models.Log
+	if err := json.Unmarshal(r.Data, &l); err != nil {
+		return err
+	}
+	if err:= f.db.Set(l.Key, l.Value); err != nil {
+		return err
+	}
+	return nil
 }
