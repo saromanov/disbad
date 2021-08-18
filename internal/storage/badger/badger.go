@@ -42,7 +42,7 @@ func (b *Badger) Get(key []byte) ([]byte, error) {
 	err := b.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(key)
 		if err != nil {
-			return err
+			return fmt.Errorf("unable to get data: %v", err)
 		}
 		valCopy, err = item.ValueCopy(nil)
 		return err
