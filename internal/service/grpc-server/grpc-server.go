@@ -8,26 +8,29 @@ import (
 
 	uuid "github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 
 	"github.com/saromanov/disbad/internal/proto/master"
 	"github.com/saromanov/disbad/internal/service"
 )
 
 type leaderInfo struct {
-	node *master.Node
+	node         *master.Node
 	replicaCount uint64
 }
 type server struct {
-	cfg Config
-	mutex sync.RWMutex
+	cfg     Config
+	mutex   sync.RWMutex
 	leaders map[string]leaderInfo
+	srv     *grpc.Server
 }
 
 // New provides initialization of the grpc-server
 func New(cfg Config) service.Service {
 	return &server{
-		cfg: cfg,
+		cfg:     cfg,
 		leaders: map[string]leaderInfo{},
+		srv: grpc.NewServer(),
 	}
 }
 
@@ -40,35 +43,37 @@ func (s *server) Run(ctx context.Context, ready func()) error {
 		return err
 	}
 
-	clusterAdminGRPCServer = New()
-	master.RegisterMasterServer(clusterAdminGRPCServer.Server, clusterAdminGRPCServer)
-	if err := clusterAdminGRPCServer.Server.Serve(listener); err != nil {
+	master.RegisterMasterServer(s.srv, s)
+	if err := s.srv.Serve(listener); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *server) JoinAsLeader(node *master.Node)*master.Cluster {
+func (s *server) JoinAsLeader(node *master.Node) *master.Cluster {
 	newClusterID := uuid.New().String()
 
 	s.mutex.Lock()
 	s.leaders[newClusterID] = leaderInfo{node, 1}
 	s.mutex.Unlock()
 	return &master.Cluster{
-		Id: newClusterID,
+		Id:                newClusterID,
 		MasterGrpcAddress: node.GrpcAddress,
 		MasterRaftAddress: node.RaftAddress,
 	}
 
 }
 
-// GetLeader returns leader of the cluster
-func (s *server) GetLeader(cluster *master.Cluster) (*master.Node, error) {
+// GetMaster returns leader of the cluster
+func (s *server) GetMaster(cluster *master.Cluster) (*master.Node, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 	leader, ok := s.leaders[cluster.Id]
 	if !ok {
 		return nil, fmt.Errorf("unable to get cluster leader")
+	}
+	if leader.node == nil {
+		return nil, fmt.Errorf("unknown error. unable to get node")
 	}
 	return leader.node, nil
 }
