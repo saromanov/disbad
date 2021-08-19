@@ -3,15 +3,12 @@ package grpcserver
 import (
 	"context"
 	"fmt"
-	"net"
 	"sync"
 
 	uuid "github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
 	"github.com/saromanov/disbad/internal/proto/master"
-	"github.com/saromanov/disbad/internal/service"
 )
 
 type leaderInfo struct {
@@ -25,32 +22,13 @@ type server struct {
 	srv     *grpc.Server
 }
 
-// New provides initialization of the grpc-server
-func New(cfg Config) service.Service {
-	return &server{
-		cfg:     cfg,
-		leaders: map[string]leaderInfo{},
-		srv: grpc.NewServer(),
-	}
+// Inuit provides starting of the grpc server
+func (s *server) Init(ctx context.Context, c *master.Cluster) (*master.Response, error) {
+
+	return nil, nil
 }
 
-// Run provides starting of the grpc server
-func (s *server) Run(ctx context.Context, ready func()) error {
-	logger := log.WithContext(ctx)
-	listener, err := net.Listen("tcp", s.cfg.Address)
-	if err != nil {
-		logger.WithError(err).WithField("address", s.cfg.Address).Error("unable to listen tcp address")
-		return err
-	}
-
-	master.RegisterMasterServer(s.srv, s)
-	if err := s.srv.Serve(listener); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *server) JoinAsLeader(node *master.Node) *master.Cluster {
+func (s *server) JoinMaster(ctx context.Context, node *master.Node) (*master.Cluster, error) {
 	newClusterID := uuid.New().String()
 
 	s.mutex.Lock()
@@ -60,12 +38,24 @@ func (s *server) JoinAsLeader(node *master.Node) *master.Cluster {
 		Id:                newClusterID,
 		MasterGrpcAddress: node.GrpcAddress,
 		MasterRaftAddress: node.RaftAddress,
-	}
+	}, nil
 
 }
 
+func (s *server) UpdateMaster(ctx context.Context, node *master.Node) (*master.Response, error) {
+	return nil, nil
+}
+
+func (s *server) LeaveCluster(ctx context.Context, node *master.Node) (*master.Response, error) {
+	return nil, nil
+}
+
+func (s *server) JoinExistingCluster(ctx context.Context, node *master.Node) (*master.Cluster, error) {
+	return nil, nil
+}
+
 // GetMaster returns leader of the cluster
-func (s *server) GetMaster(cluster *master.Cluster) (*master.Node, error) {
+func (s *server) GetMaster(ctx context.Context, cluster *master.Cluster) (*master.Node, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 	leader, ok := s.leaders[cluster.Id]
@@ -76,8 +66,4 @@ func (s *server) GetMaster(cluster *master.Cluster) (*master.Node, error) {
 		return nil, fmt.Errorf("unknown error. unable to get node")
 	}
 	return leader.node, nil
-}
-
-func (s *server) Shutdown(ctx context.Context) error {
-	return nil
 }

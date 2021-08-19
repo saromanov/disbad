@@ -89,7 +89,7 @@ func (c *masterClient) Init(ctx context.Context, in *Cluster, opts ...grpc.CallO
 }
 
 // MasterServer is the server API for Master service.
-// All implementations must embed UnimplementedMasterServer
+// All implementations should embed UnimplementedMasterServer
 // for forward compatibility
 type MasterServer interface {
 	JoinExistingCluster(context.Context, *Node) (*Cluster, error)
@@ -98,10 +98,9 @@ type MasterServer interface {
 	LeaveCluster(context.Context, *Node) (*Response, error)
 	GetMaster(context.Context, *Cluster) (*Node, error)
 	Init(context.Context, *Cluster) (*Response, error)
-	mustEmbedUnimplementedMasterServer()
 }
 
-// UnimplementedMasterServer must be embedded to have forward compatible implementations.
+// UnimplementedMasterServer should be embedded to have forward compatible implementations.
 type UnimplementedMasterServer struct {
 }
 
@@ -123,7 +122,6 @@ func (UnimplementedMasterServer) GetMaster(context.Context, *Cluster) (*Node, er
 func (UnimplementedMasterServer) Init(context.Context, *Cluster) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
 }
-func (UnimplementedMasterServer) mustEmbedUnimplementedMasterServer() {}
 
 // UnsafeMasterServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to MasterServer will
