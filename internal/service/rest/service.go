@@ -22,7 +22,7 @@ func (s *rest) Run(ctx context.Context, ready func()) error {
 	r.GET("/ping", func(c *gin.Context) {
 		
 	})
-	r.Run()
+	r.Run(s.cfg.Address)
 	return nil
 }
 

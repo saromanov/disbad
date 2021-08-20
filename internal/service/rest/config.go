@@ -2,5 +2,5 @@ package rest
 
 // Config defines configuration for rest
 type Config struct {
-	Address string `env:"REST_ADDERSS"`
+	Address string `env:"REST_ADDRESS,required"`
 }
