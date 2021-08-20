@@ -12,17 +12,16 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/saromanov/disbad/internal/service"
-	"github.com/saromanov/disbad/internal/service/rest"
 	grpc "github.com/saromanov/disbad/internal/service/grpc-server"
+	"github.com/saromanov/disbad/internal/service/rest"
 )
 
 type config struct {
 	GRPS grpc.Config
 	Rest rest.Config
-
 }
 
-func main(){
+func main() {
 	var cfg config
 	if err := envdecode.StrictDecode(&cfg); err != nil {
 		logrus.WithError(err).Fatal("Cannot decode config envs")
@@ -46,7 +45,7 @@ func main(){
 	}
 
 	st := grpc.New(cfg.GRPS)
-	r := rest.New(cfg.Rest,st)
+	r := rest.New(cfg.Rest, st)
 
 	s := service.Runner{}
 	if err := s.SetupService(ctx, st, "grpc-server", g); err != nil {
