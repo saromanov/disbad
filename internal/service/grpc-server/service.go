@@ -36,6 +36,7 @@ func (s *grpcServer) Run(ctx context.Context, ready func()) error {
 		return err
 	}
 
+	logger.Info("starting of grpc server...")
 	master.RegisterMasterServer(s.server.srv, s.server)
 	if err := s.server.srv.Serve(listener); err != nil {
 		return err

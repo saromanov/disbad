@@ -46,7 +46,6 @@ func main() {
 
 	st := grpc.New(cfg.GRPC)
 	r := rest.New(cfg.Rest)
-
 	s := service.Runner{}
 	if err := s.SetupService(ctx, st, "grpc-server", g); err != nil {
 		logger.WithError(err).Fatal("unable to setup service ")

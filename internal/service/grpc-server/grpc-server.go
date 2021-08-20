@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	uuid "github.com/google/uuid"
-	"google.golang.org/grpc"
 
 	"github.com/saromanov/disbad/internal/proto/master"
 )
@@ -19,7 +18,6 @@ type server struct {
 	cfg     Config
 	mutex   sync.RWMutex
 	leaders map[string]leaderInfo
-	srv     *grpc.Server
 }
 
 // Inuit provides starting of the grpc server
