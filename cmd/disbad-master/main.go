@@ -12,11 +12,13 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/saromanov/disbad/internal/service"
+	"github.com/saromanov/disbad/internal/service/rest"
 	grpc "github.com/saromanov/disbad/internal/service/grpc-server"
 )
 
 type config struct {
 	GRPS grpc.Config
+	Rest rest.Config
 
 }
 
@@ -43,10 +45,7 @@ func main(){
 		})
 	}
 
-	st, err := grpc.New(cfg.GRPC)
-	if err != nil {
-		logger.WithError(err).Fatal("unable to init grpc server")
-	}
+	st := grpc.New(cfg.GRPS)
 	r := rest.New(cfg.Rest,st)
 
 	s := service.Runner{}
