@@ -7,6 +7,7 @@ import (
 
 	uuid "github.com/google/uuid"
 
+	"github.com/saromanov/disbad/internal/disbad"
 	"github.com/saromanov/disbad/internal/proto/master"
 )
 
@@ -16,24 +17,22 @@ type leaderInfo struct {
 }
 type server struct {
 	cfg     Config
-	mutex   sync.RWMutex
-	leaders map[string]leaderInfo
+	dis *disbad.Disbad
 }
 
-// Inuit provides starting of the grpc server
+// Init provides starting of the grpc server
 func (s *server) Init(ctx context.Context, c *master.Cluster) (*master.Response, error) {
-
+	s.dis = disbad.New()
 	return nil, nil
 }
 
 func (s *server) JoinMaster(ctx context.Context, node *master.Node) (*master.Cluster, error) {
-	newClusterID := uuid.New().String()
-
-	s.mutex.Lock()
-	s.leaders[newClusterID] = leaderInfo{node, 1}
-	s.mutex.Unlock()
+	clusterID, err := s.dis.JoinMaster(ctx, node.GrpcAddress, node.RaftAddress)
+	if err != nil {
+		return nil, fmt.Errorf("unable to join master: %v", err)
+	}
 	return &master.Cluster{
-		Id:                newClusterID,
+		Id:                clusterID,
 		MasterGrpcAddress: node.GrpcAddress,
 		MasterRaftAddress: node.RaftAddress,
 	}, nil
@@ -54,14 +53,14 @@ func (s *server) JoinExistingCluster(ctx context.Context, node *master.Node) (*m
 
 // GetMaster returns leader of the cluster
 func (s *server) GetMaster(ctx context.Context, cluster *master.Cluster) (*master.Node, error) {
-	s.mutex.RLock()
-	defer s.mutex.RUnlock()
-	leader, ok := s.leaders[cluster.Id]
-	if !ok {
-		return nil, fmt.Errorf("unable to get cluster leader")
+	node, err := s.dis.GetMaster(ctx, cluster.Id)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get node: %v", err)
 	}
-	if leader.node == nil {
-		return nil, fmt.Errorf("unknown error. unable to get node")
-	}
-	return leader.node, nil
+	return &master.Node{
+		RaftAddress: node.RaftAddress,
+		GrpcAddress: node.GrpcAddress,
+		ClusterId: node.ClusterID,
+		Id: node.ID,
+	}, nil
 }

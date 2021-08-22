@@ -6,3 +6,10 @@ type Log struct {
 	Key       []byte `json:"key"`
 	Value     []byte `json:"value"`
 }
+
+type Node struct {
+	ID          string
+	GrpcAddress string
+	RaftAddress string
+	ClusterID   string
+}
