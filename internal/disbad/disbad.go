@@ -7,6 +7,7 @@ import (
 
 	uuid "github.com/google/uuid"
 	"github.com/saromanov/disbad/internal/models"
+	"google.golang.org/grpc"
 )
 
 type leaderInfo struct {
@@ -17,12 +18,14 @@ type leaderInfo struct {
 type Disbad struct {
 	mutex   sync.RWMutex
 	leaders map[string]leaderInfo
+	server *grpc.Server
 }
 
 // New provides initialization of the grpc-server
 func New() *Disbad {
 	return &Disbad{
 		leaders: map[string]leaderInfo{},
+		server: grpc.NewServer(),
 	}
 }
 

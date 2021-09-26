@@ -11,6 +11,7 @@ import (
 	"github.com/oklog/run"
 	"github.com/sirupsen/logrus"
 
+	"github.com/saromanov/disbad/internal/disbad"
 	"github.com/saromanov/disbad/internal/service"
 	grpc "github.com/saromanov/disbad/internal/service/grpc-server"
 	"github.com/saromanov/disbad/internal/service/rest"
@@ -44,7 +45,8 @@ func main() {
 		})
 	}
 
-	st := grpc.New(cfg.GRPC)
+	dis := disbad.New()
+	st := grpc.New(cfg.GRPC, dis)
 	r := rest.New(cfg.Rest)
 	s := service.Runner{}
 	if err := s.SetupService(ctx, st, "grpc-server", g); err != nil {

@@ -1,1 +1,1 @@
-package disbad-slave
+package main

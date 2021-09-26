@@ -6,6 +6,7 @@ import (
 
 	"github.com/saromanov/disbad/internal/disbad"
 	"github.com/saromanov/disbad/internal/proto/master"
+	"google.golang.org/grpc"
 )
 
 type leaderInfo struct {
@@ -13,13 +14,15 @@ type leaderInfo struct {
 	replicaCount uint64
 }
 type server struct {
-	cfg Config
-	dis *disbad.Disbad
+	cfg    Config
+	dis    *disbad.Disbad
+	server *grpc.Server
 }
 
 // Init provides starting of the grpc server
-func (s *server) Init(ctx context.Context) (*master.Response, error) {
+func (s *server) Init(ctx context.Context, c *master.Cluster) (*master.Response, error) {
 	s.dis = disbad.New()
+	s.server = grpc.NewServer()
 	return nil, nil
 }
 

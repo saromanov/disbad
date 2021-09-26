@@ -6,6 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/saromanov/disbad/internal/disbad"
 	"github.com/saromanov/disbad/internal/proto/master"
 	"github.com/saromanov/disbad/internal/service"
 )
@@ -16,11 +17,12 @@ type grpcServer struct {
 }
 
 // New provides initialization of the grpc-server
-func New(cfg Config) service.Service {
+func New(cfg Config, dis *disbad.Disbad) service.Service {
 	return &grpcServer{
 		cfg: cfg,
 		server: &server{
 			cfg: cfg,
+			dis: dis,
 		},
 	}
 }
@@ -28,7 +30,7 @@ func New(cfg Config) service.Service {
 // Run provides starting of the grpc server
 func (s *grpcServer) Run(ctx context.Context, ready func()) error {
 	logger := log.WithContext(ctx)
-	s.server.Init(ctx)
+	s.server.Init(ctx, nil)
 	listener, err := net.Listen("tcp", s.cfg.Address)
 	if err != nil {
 		logger.WithError(err).WithField("address", s.cfg.Address).Error("unable to listen tcp address")
@@ -36,8 +38,9 @@ func (s *grpcServer) Run(ctx context.Context, ready func()) error {
 	}
 
 	logger.Info("starting of grpc server...")
-	master.RegisterMasterServer(s.server.srv, s.server)
-	if err := s.server.srv.Serve(listener); err != nil {
+	s.server.Init(ctx, nil)
+	master.RegisterMasterServer(s.server.server, s.server)
+	if err := s.server.server.Serve(listener); err != nil {
 		return err
 	}
 	return nil
