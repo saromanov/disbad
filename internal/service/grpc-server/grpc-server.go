@@ -3,9 +3,6 @@ package grpcserver
 import (
 	"context"
 	"fmt"
-	"sync"
-
-	uuid "github.com/google/uuid"
 
 	"github.com/saromanov/disbad/internal/disbad"
 	"github.com/saromanov/disbad/internal/proto/master"
@@ -16,12 +13,12 @@ type leaderInfo struct {
 	replicaCount uint64
 }
 type server struct {
-	cfg     Config
+	cfg Config
 	dis *disbad.Disbad
 }
 
 // Init provides starting of the grpc server
-func (s *server) Init(ctx context.Context, c *master.Cluster) (*master.Response, error) {
+func (s *server) Init(ctx context.Context) (*master.Response, error) {
 	s.dis = disbad.New()
 	return nil, nil
 }
@@ -60,7 +57,7 @@ func (s *server) GetMaster(ctx context.Context, cluster *master.Cluster) (*maste
 	return &master.Node{
 		RaftAddress: node.RaftAddress,
 		GrpcAddress: node.GrpcAddress,
-		ClusterId: node.ClusterID,
-		Id: node.ID,
+		ClusterId:   node.ClusterID,
+		Id:          node.ID,
 	}, nil
 }

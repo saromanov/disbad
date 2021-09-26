@@ -5,7 +5,6 @@ import (
 	"net"
 
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 
 	"github.com/saromanov/disbad/internal/proto/master"
 	"github.com/saromanov/disbad/internal/service"
@@ -21,8 +20,7 @@ func New(cfg Config) service.Service {
 	return &grpcServer{
 		cfg: cfg,
 		server: &server{
-			leaders: map[string]leaderInfo{},
-			srv:     grpc.NewServer(),
+			cfg: cfg,
 		},
 	}
 }
@@ -30,6 +28,7 @@ func New(cfg Config) service.Service {
 // Run provides starting of the grpc server
 func (s *grpcServer) Run(ctx context.Context, ready func()) error {
 	logger := log.WithContext(ctx)
+	s.server.Init(ctx)
 	listener, err := net.Listen("tcp", s.cfg.Address)
 	if err != nil {
 		logger.WithError(err).WithField("address", s.cfg.Address).Error("unable to listen tcp address")

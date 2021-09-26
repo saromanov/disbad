@@ -15,6 +15,7 @@ type Badger struct {
 // New defines initialization of Badger
 func New() (storage.Storage, error) {
 	opts := badger.DefaultOptions("")
+	opts.SyncWrites = true
 	db, err := badger.Open(opts)
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialize badger: %v", err)

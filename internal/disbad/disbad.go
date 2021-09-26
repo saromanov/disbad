@@ -51,3 +51,14 @@ func (d *Disbad) GetMaster(ctx context.Context, clusterID string) (*models.Node,
 	}
 	return leader.node, nil
 }
+
+// ReadKey provides reading of the key
+func (d *Disbad) ReadKey(ctx context.Context, clusterID, key string) (string, error) {
+	if clusterID == "" {
+		return "", fmt.Errorf("cluster id is not defined")
+	}
+	if key == "" {
+		return "", fmt.Errorf("key is not defined")
+	}
+	return "", nil
+}
