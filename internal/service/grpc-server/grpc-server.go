@@ -81,3 +81,22 @@ func (s *server) GetMaster(ctx context.Context, cluster *master.Cluster) (*maste
 		Id:          node.ID,
 	}, nil
 }
+
+func (s *server) WriteKeyValue(key []byte, val []byte, clusterID string) error {
+	conn, err := grpc.Dial(s.leaders[clusterID].node.GrpcAddress, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("conn :", conn)
+	/*resp, err := client.Run(context.TODO(), &node.Command{
+		Operation: "set",
+		Key:       key,
+		Value:     val,
+	})
+
+	if err != nil {
+		return err
+	}*/
+	return nil
+}
